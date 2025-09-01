@@ -1,10 +1,9 @@
 import java.util.Scanner;
-
-public class rat {
+import java.util.ArrayList;
+public class Rat {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        Task[] tasks = new Task[100];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
 
         System.out.println("____________________________________________________________");
         System.out.println(" Hello! I'm rat");
@@ -20,12 +19,12 @@ public class rat {
 
                 } else if (input.equalsIgnoreCase("list")) {
                     System.out.println("____________________________________________________________");
-                    if (taskCount == 0) {
+                    if (tasks.isEmpty()) {
                         System.out.println(" No tasks added yet!");
                     } else {
                         System.out.println(" Here are the tasks in your list:");
-                        for (int i = 0; i < taskCount; i++) {
-                            System.out.println(" " + (i + 1) + ". " + tasks[i]);
+                        for (int i = 0; i < tasks.size(); i++) {
+                            System.out.println(" " + (i + 1) + ". " + tasks.get(i));
                         }
                     }
                     System.out.println("____________________________________________________________");
@@ -33,70 +32,82 @@ public class rat {
                 } else if (input.startsWith("mark")) {
                     String[] parts = input.split(" ");
                     if (parts.length < 2) {
-                        throw new ratException("Please provide a task number to mark.");
+                        throw new RatException("Please provide a task number to mark.");
                     }
                     int index = Integer.parseInt(parts[1]) - 1;
-                    if (index < 0 || index >= taskCount) {
-                        throw new ratException("That task number does not exist.");
+                    if (index < 0 || index >= tasks.size()) {
+                        throw new RatException("That task number does not exist.");
                     }
-                    tasks[index].markAsDone();
+                    tasks.get(index).markAsDone();
                     System.out.println("____________________________________________________________");
                     System.out.println(" Nice! I've marked this task as done:");
-                    System.out.println("   " + tasks[index]);
+                    System.out.println("   " + tasks.get(index).toString());
                     System.out.println("____________________________________________________________");
 
                 } else if (input.startsWith("unmark")) {
                     String[] parts = input.split(" ");
                     if (parts.length < 2) {
-                        throw new ratException("Please provide a task number to unmark.");
+                        throw new RatException("Please provide a task number to unmark.");
                     }
                     int index = Integer.parseInt(parts[1]) - 1;
-                    if (index < 0 || index >= taskCount) {
-                        throw new ratException("That task number does not exist.");
+                    if (index < 0 || index >= tasks.size()) {
+                        throw new RatException("That task number does not exist.");
                     }
-                    tasks[index].markAsNotDone();
+                    tasks.get(index).markAsNotDone();
                     System.out.println("____________________________________________________________");
                     System.out.println(" OK, I've marked this task as not done yet:");
-                    System.out.println("   " + tasks[index]);
+                    System.out.println("   " + tasks.get(index).toString());
                     System.out.println("____________________________________________________________");
 
                 } else if (input.startsWith("todo")) {
                     String description = input.substring(4).trim();
                     if (description.isEmpty()) {
-                        throw new ratException("The description of a todo cannot be empty.");
+                        throw new RatException("The description of a todo cannot be empty.");
                     }
-                    tasks[taskCount] = new ToDo(description);
-                    taskCount++;
-                    printAdded(tasks[taskCount - 1], taskCount);
+                    Task t = new ToDo(description);
+                    tasks.add(t);
+                    printAdded(t, tasks.size());
 
                 } else if (input.startsWith("deadline")) {
                     String[] parts = input.substring(8).split("/by", 2);
                     String description = parts[0].trim();
                     if (description.isEmpty()) {
-                        throw new ratException("The description of a deadline cannot be empty.");
+                        throw new RatException("The description of a deadline cannot be empty.");
                     }
                     String by = parts.length > 1 ? parts[1].trim() : "unspecified";
-                    tasks[taskCount] = new Deadline(description, by);
-                    taskCount++;
-                    printAdded(tasks[taskCount - 1], taskCount);
+                   Task t = new Deadline(description, by);
+                   tasks.add(t);
+                   printAdded(t, tasks.size());
 
                 } else if (input.startsWith("event")) {
                     String[] parts = input.substring(5).split("/from|/to");
                     String description = parts[0].trim();
                     if (description.isEmpty()) {
-                        throw new ratException("The description of an event cannot be empty.");
+                        throw new RatException("The description of an event cannot be empty.");
                     }
                     String from = (parts.length > 1) ? parts[1].trim() : "unspecified";
                     String to = (parts.length > 2) ? parts[2].trim() : "unspecified";
-                    tasks[taskCount] = new Event(description, from, to);
-                    taskCount++;
-                    printAdded(tasks[taskCount - 1], taskCount);
-
-                } else {
-                    throw new ratException("I don't understand that command.");
+                    Task t = new Event(description, from, to);
+                    tasks.add(t);
+                    printAdded(t, tasks.size());
+                } else if (input.startsWith("delete")) {
+                    String[] parts = input.split(" ");
+                    if (parts.length < 2) throw new RatException("Please provide a task number to delete.");
+                    int index = Integer.parseInt(parts[1]) - 1;
+                    if (index < 0 || index >= tasks.size()) throw new RatException("That task number does not exist.");
+                    Task removed = tasks.remove(index);
+                    System.out.println("____________________________________________________________");
+                    System.out.println(" Noted. I've removed this task:");
+                    System.out.println("   " + removed);
+                    System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+                    System.out.println("____________________________________________________________");
                 }
 
-            } catch (ratException e) {
+                else {
+                    throw new RatException("I don't understand that command.");
+                }
+
+            } catch (RatException e) {
                 System.out.println("____________________________________________________________");
                 System.out.println(" Oops! " + e.getMessage());
                 System.out.println("____________________________________________________________");
