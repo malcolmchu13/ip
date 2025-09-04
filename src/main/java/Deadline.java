@@ -1,32 +1,81 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * Represents a deadline task with a description and a due date.
  */
 public class Deadline extends Task {
 
-    /**
-     * The due date of the deadline.
-     */
-    protected String by;
+    protected LocalDateTime by;
 
-    /**
-     * Creates a deadline task with the given description and due date.
-     * @param description the task description
-     * @param by the due date
-     */
-    public Deadline(String description, String by) {
+    public Deadline(String description, LocalDateTime by) {
         super(description);
         this.by = by;
+    }
+
+    public Deadline(String description, String by) {
+        super(description);
+        this.by = parseDateTime(by);
+    }
+
+    /**
+     * Parses a date/time string into LocalDateTime.
+     * Supports formats: yyyy-MM-dd, yyyy-MM-dd HHmm, dd/MM/yyyy HHmm, yyyy-MM-ddTHH:mm
+     * @param dateTimeStr the date/time string to parse
+     * @return LocalDateTime object
+     */
+    private LocalDateTime parseDateTime(String dateTimeStr) {
+        try {
+            // Try ISO format first (from file loading)
+            if (dateTimeStr.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}")) {
+                return LocalDateTime.parse(dateTimeStr);
+            }
+            // Try yyyy-MM-dd format
+            else if (dateTimeStr.matches("\\d{4}-\\d{2}-\\d{2}")) {
+                return LocalDateTime.parse(dateTimeStr + "T00:00");
+            }
+            // Try yyyy-MM-dd HHmm format
+            else if (dateTimeStr.matches("\\d{4}-\\d{2}-\\d{2} \\d{4}")) {
+                String[] parts = dateTimeStr.split(" ");
+                String time = parts[1];
+                String formattedTime = time.substring(0, 2) + ":" + time.substring(2);
+                return LocalDateTime.parse(parts[0] + "T" + formattedTime);
+            }
+            // Try dd/MM/yyyy HHmm format
+            else if (dateTimeStr.matches("\\d{1,2}/\\d{1,2}/\\d{4} \\d{4}")) {
+                String[] parts = dateTimeStr.split(" ");
+                String[] dateParts = parts[0].split("/");
+                String time = parts[1];
+                String formattedTime = time.substring(0, 2) + ":" + time.substring(2);
+                String isoDate = dateParts[2] + "-" + String.format("%02d", Integer.parseInt(dateParts[1])) + "-" + String.format("%02d", Integer.parseInt(dateParts[0]));
+                return LocalDateTime.parse(isoDate + "T" + formattedTime);
+            }
+            // Default to current time if parsing fails
+            return LocalDateTime.now();
+        } catch (Exception e) {
+            return LocalDateTime.now();
+        }
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[D]").append(super.toString()).append(" (by: ").append(by).append(")");
+        sb.append("[D]").append(super.toString()).append(" (by: ").append(formatDateTime(by)).append(")");
         return sb.toString();
+    }
+
+    /**
+     * Formats LocalDateTime to readable string format.
+     * @param dateTime the LocalDateTime to format
+     * @return formatted string in "MMM dd yyyy hh:mm a" format
+     */
+    private String formatDateTime(LocalDateTime dateTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a");
+        return dateTime.format(formatter);
     }
 
     @Override
     public String toFileString() {
-        return "D | " + (isDone ? "1" : "0") + " | " + description + " | " + by;
+        return "D | " + (isDone ? "1" : "0") + " | " + description + " | " + by.toString();
     }
 }

@@ -3,19 +3,9 @@
  * This is an abstract base class for different types of tasks.
  */
 public abstract class Task {
-    /**
-     * The description of the task.
-     */
     protected String description;
-    /**
-     * Indicates whether the task is completed.
-     */
     protected boolean isDone;
 
-    /**
-     * Creates a task with the given description.
-     * @param description the task description
-     */
     public Task(String description) {
         this.description = description;
         this.isDone = false;
