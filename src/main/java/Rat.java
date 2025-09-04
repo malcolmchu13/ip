@@ -1,6 +1,9 @@
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 /**
  * The main class for the Rat task management application.
  * Provides a command-line interface for managing tasks.
@@ -125,9 +128,30 @@ public class Rat {
                                      "   " + removed + "\n" +
                                      " Now you have " + tasks.size() + " tasks in the list.\n" +
                                      "____________________________________________________________");
-                }
 
-                else {
+                } else if (input.startsWith("find")) {
+                    String[] parts = input.substring(4).split("/on", 2);
+                    if (parts.length < 2) {
+                        throw new RatException("Please provide a date to search for. Usage: find /on yyyy-MM-dd");
+                    }
+                    String dateStr = parts[1].trim();
+                    LocalDate searchDate = LocalDate.parse(dateStr);
+                    ArrayList<Task> foundTasks = findTasksByDate(searchDate);
+
+                    StringBuilder findMessage = new StringBuilder();
+                    findMessage.append("____________________________________________________________\n");
+                    if (foundTasks.isEmpty()) {
+                        findMessage.append(" No tasks found on ").append(searchDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy"))).append("!\n");
+                    } else {
+                        findMessage.append(" Here are the tasks on ").append(searchDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy"))).append(":\n");
+                        for (int i = 0; i < foundTasks.size(); i++) {
+                            findMessage.append(" ").append(i + 1).append(". ").append(foundTasks.get(i)).append("\n");
+                        }
+                    }
+                    findMessage.append("____________________________________________________________");
+                    System.out.println(findMessage.toString());
+
+                } else {
                     throw new RatException("I don't understand that command.");
                 }
 
@@ -149,17 +173,59 @@ public class Rat {
         scanner.close();
     }
 
-    /**
-     * Prints a message confirming that a task has been added.
-     * @param task the task that was added
-     * @param count the current number of tasks
-     */
     private static void printAdded(Task task, int count) {
         System.out.println("____________________________________________________________\n" +
                           " Got it. I've added this task:\n" +
                           "   " + task + "\n" +
                           " Now you have " + count + " tasks in the list.\n" +
                           "____________________________________________________________");
+    }
+
+    /**
+     * Finds all tasks (deadlines and events) that occur on the specified date.
+     * @param searchDate the date to search for
+     * @return ArrayList of tasks that occur on the specified date
+     */
+    private static ArrayList<Task> findTasksByDate(LocalDate searchDate) {
+        ArrayList<Task> foundTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task instanceof Deadline) {
+                Deadline deadline = (Deadline) task;
+                // Use reflection to access the private 'by' field
+                try {
+                    java.lang.reflect.Field byField = Deadline.class.getDeclaredField("by");
+                    byField.setAccessible(true);
+                    LocalDateTime deadlineDateTime = (LocalDateTime) byField.get(deadline);
+                    if (deadlineDateTime.toLocalDate().equals(searchDate)) {
+                        foundTasks.add(task);
+                    }
+                } catch (Exception e) {
+                    // Skip if unable to access field
+                }
+            } else if (task instanceof Event) {
+                Event event = (Event) task;
+                // Use reflection to access the private 'from' and 'to' fields
+                try {
+                    java.lang.reflect.Field fromField = Event.class.getDeclaredField("from");
+                    java.lang.reflect.Field toField = Event.class.getDeclaredField("to");
+                    fromField.setAccessible(true);
+                    toField.setAccessible(true);
+                    LocalDateTime fromDateTime = (LocalDateTime) fromField.get(event);
+                    LocalDateTime toDateTime = (LocalDateTime) toField.get(event);
+                    LocalDate fromDate = fromDateTime.toLocalDate();
+                    LocalDate toDate = toDateTime.toLocalDate();
+
+                    // Check if the event occurs on the search date
+                    if ((searchDate.isEqual(fromDate) || searchDate.isEqual(toDate) ||
+                         (searchDate.isAfter(fromDate) && searchDate.isBefore(toDate)))) {
+                        foundTasks.add(task);
+                    }
+                } catch (Exception e) {
+                    // Skip if unable to access fields
+                }
+            }
+        }
+        return foundTasks;
     }
 
     private static void saveTasks() {
