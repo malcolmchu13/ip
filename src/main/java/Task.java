@@ -1,7 +1,21 @@
-public class Task {
+/**
+ * Represents a task with a description and completion status.
+ * This is an abstract base class for different types of tasks.
+ */
+public abstract class Task {
+    /**
+     * The description of the task.
+     */
     protected String description;
+    /**
+     * Indicates whether the task is completed.
+     */
     protected boolean isDone;
 
+    /**
+     * Creates a task with the given description.
+     * @param description the task description
+     */
     public Task(String description) {
         this.description = description;
         this.isDone = false;
@@ -20,6 +34,44 @@ public class Task {
 
     @Override
     public String toString() {
-        return "[" + getStatusIcon() + "] " + description;
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(getStatusIcon()).append("] ").append(description);
+        return sb.toString();
+    }
+
+    public abstract String toFileString();
+
+    public static Task fromString(String fileString) throws RatException {
+        String[] parts = fileString.split(" \\| ");
+        String type = parts[0];
+        boolean isDone = parts[1].equals("1");
+        String description = parts[2];
+        Task task;
+        switch (type) {
+        case "T":
+            task = new ToDo(description);
+            break;
+        case "D":
+            if (parts.length < 4) {
+                throw new RatException("Invalid format for deadline task in file.");
+            }
+            String by = parts[3];
+            task = new Deadline(description, by);
+            break;
+        case "E":
+            if (parts.length < 5) {
+                throw new RatException("Invalid format for event task in file.");
+            }
+            String from = parts[3];
+            String to = parts[4];
+            task = new Event(description, from, to);
+            break;
+        default:
+            throw new RatException("Unknown task type in file: " + type);
+        }
+        if (isDone) {
+            task.markAsDone();
+        }
+        return task;
     }
 }
