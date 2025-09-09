@@ -1,3 +1,5 @@
+package duke;
+
 /**
  * Custom exception for the Rat application.
  * Thrown when there are errors in task management operations.

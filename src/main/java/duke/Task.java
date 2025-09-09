@@ -1,3 +1,5 @@
+package duke;
+
 /**
  * Represents a task with a description and completion status.
  * This is an abstract base class for different types of tasks.

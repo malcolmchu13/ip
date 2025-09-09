@@ -1,3 +1,5 @@
+package duke;
+
 import java.time.LocalDate;
 
 /**
@@ -72,4 +74,3 @@ public class Parser {
         throw new RatException("I don't understand that command.");
     }
 }
-
