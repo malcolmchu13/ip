@@ -1,25 +1,23 @@
-package duke;
+package rat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Represents an event task with a description, start time, and end time.
+ * Represents a deadline task with a description and a due date.
  */
-public class Event extends Task{
-    protected LocalDateTime from;
-    protected LocalDateTime to;
+public class Deadline extends Task {
 
-    public Event(String description, LocalDateTime from, LocalDateTime to) {
+    protected LocalDateTime by;
+
+    public Deadline(String description, LocalDateTime by) {
         super(description);
-        this.from = from;
-        this.to = to;
+        this.by = by;
     }
 
-    public Event(String description, String from, String to) {
+    public Deadline(String description, String by) {
         super(description);
-        this.from = parseDateTime(from);
-        this.to = parseDateTime(to);
+        this.by = parseDateTime(by);
     }
 
     /**
@@ -64,7 +62,7 @@ public class Event extends Task{
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("[E]").append(super.toString()).append(" (from: ").append(formatDateTime(from)).append(" to: ").append(formatDateTime(to)).append(")");
+        sb.append("[D]").append(super.toString()).append(" (by: ").append(formatDateTime(by)).append(")");
         return sb.toString();
     }
 
@@ -80,6 +78,6 @@ public class Event extends Task{
 
     @Override
     public String toFileString() {
-        return "E | " + (isDone ? "1" : "0") + " | " + description + " | " + from.toString() + " | " + to.toString();
+        return "D | " + (isDone ? "1" : "0") + " | " + description + " | " + by.toString();
     }
 }

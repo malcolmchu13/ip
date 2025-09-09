@@ -1,4 +1,4 @@
-package duke;
+package rat;
 
 /**
  * Represents a todo task with a description.

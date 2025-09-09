@@ -1,4 +1,4 @@
-package duke;
+package rat;
 
 import org.junit.jupiter.api.Test;
 
@@ -45,4 +45,3 @@ public class ParserTest {
         assertEquals(LocalDate.of(2024, 9, 10), cmd.date);
     }
 }
-

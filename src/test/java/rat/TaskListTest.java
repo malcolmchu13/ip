@@ -1,4 +1,4 @@
-package duke;
+package rat;
 
 import org.junit.jupiter.api.Test;
 
@@ -47,4 +47,3 @@ public class TaskListTest {
         assertTrue(oneItem.contains("1. [T][ ] read book"));
     }
 }
-

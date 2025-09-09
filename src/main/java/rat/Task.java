@@ -1,4 +1,4 @@
-package duke;
+package rat;
 
 /**
  * Represents a task with a description and completion status.

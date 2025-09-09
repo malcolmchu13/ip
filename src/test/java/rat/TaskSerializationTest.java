@@ -1,4 +1,4 @@
-package duke;
+package rat;
 
 import org.junit.jupiter.api.Test;
 
@@ -34,4 +34,3 @@ public class TaskSerializationTest {
         assertTrue(t.toString().contains("to:"));
     }
 }
-

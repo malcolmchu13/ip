@@ -1,4 +1,4 @@
-package duke;
+package rat;
 
 /**
  * Custom exception for the Rat application.
