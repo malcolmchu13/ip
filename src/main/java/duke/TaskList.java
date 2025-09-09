@@ -56,6 +56,24 @@ public class TaskList {
     }
 
     /**
+     * Finds all tasks whose description contains the given keyword (case-insensitive).
+     */
+    public ArrayList<Task> findTasksByKeyword(String keyword) {
+        ArrayList<Task> foundTasks = new ArrayList<>();
+        if (keyword == null || keyword.isEmpty()) {
+            return foundTasks;
+        }
+        String needle = keyword.toLowerCase();
+        for (Task task : tasks) {
+            String desc = task.getDescription();
+            if (desc != null && desc.toLowerCase().contains(needle)) {
+                foundTasks.add(task);
+            }
+        }
+        return foundTasks;
+    }
+
+    /**
      * Finds all tasks (deadlines and events) that occur on the specified date.
      */
     public ArrayList<Task> findTasksByDate(LocalDate searchDate) {

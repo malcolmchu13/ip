@@ -64,11 +64,18 @@ public class Parser {
             int index = Integer.parseInt(parts[1]) - 1;
             return new ParsedCommand(CommandType.DELETE, null, null, null, null, index, null);
         } else if (input.startsWith("find")) {
-            String[] parts = input.substring(4).split("/on", 2);
-            if (parts.length < 2) throw new RatException("Please provide a date to search for. Usage: find /on yyyy-MM-dd");
-            String dateStr = parts[1].trim();
-            LocalDate searchDate = LocalDate.parse(dateStr);
-            return new ParsedCommand(CommandType.FIND, null, null, null, null, null, searchDate);
+            String args = input.substring(4).trim();
+            // Support both: keyword search (find <keyword>) and date search (find /on yyyy-MM-dd)
+            if (args.startsWith("/on") || args.contains("/on")) {
+                String[] parts = args.split("/on", 2);
+                if (parts.length < 2) throw new RatException("Please provide a date to search for. Usage: find /on yyyy-MM-dd");
+                String dateStr = parts[1].trim();
+                LocalDate searchDate = LocalDate.parse(dateStr);
+                return new ParsedCommand(CommandType.FIND, null, null, null, null, null, searchDate);
+            } else {
+                if (args.isEmpty()) throw new RatException("Please provide a keyword to search for. Usage: find keyword");
+                return new ParsedCommand(CommandType.FIND, args, null, null, null, null, null);
+            }
         }
 
         throw new RatException("I don't understand that command.");

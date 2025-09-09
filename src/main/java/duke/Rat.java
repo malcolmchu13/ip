@@ -88,22 +88,39 @@ public class Rat {
                         break;
                     }
                     case FIND: {
-                        LocalDate searchDate = cmd.date;
-                        java.util.ArrayList<Task> found = tasks.findTasksByDate(searchDate);
-                        StringBuilder sb = new StringBuilder();
-                        if (found.isEmpty()) {
-                            sb.append(" No tasks found on ")
-                              .append(searchDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")))
-                              .append("!\n");
-                        } else {
-                            sb.append(" Here are the tasks on ")
-                              .append(searchDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")))
-                              .append(":\n");
-                            for (int i = 0; i < found.size(); i++) {
-                                sb.append(" ").append(i + 1).append(". ").append(found.get(i)).append("\n");
+                        if (cmd.date != null) {
+                            LocalDate searchDate = cmd.date;
+                            java.util.ArrayList<Task> found = tasks.findTasksByDate(searchDate);
+                            StringBuilder sb = new StringBuilder();
+                            if (found.isEmpty()) {
+                                sb.append(" No tasks found on ")
+                                  .append(searchDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")))
+                                  .append("!\n");
+                            } else {
+                                sb.append(" Here are the tasks on ")
+                                  .append(searchDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")))
+                                  .append(":\n");
+                                for (int i = 0; i < found.size(); i++) {
+                                    sb.append(" ").append(i + 1).append(". ").append(found.get(i)).append("\n");
+                                }
                             }
+                            ui.printList(sb.toString());
+                        } else if (cmd.description != null) {
+                            String keyword = cmd.description;
+                            java.util.ArrayList<Task> found = tasks.findTasksByKeyword(keyword);
+                            StringBuilder sb = new StringBuilder();
+                            if (found.isEmpty()) {
+                                sb.append(" No matching tasks found.\n");
+                            } else {
+                                sb.append(" Here are the matching tasks in your list:\n");
+                                for (int i = 0; i < found.size(); i++) {
+                                    sb.append(" ").append(i + 1).append(". ").append(found.get(i)).append("\n");
+                                }
+                            }
+                            ui.printList(sb.toString());
+                        } else {
+                            throw new RatException("Please provide a keyword or a date to search.");
                         }
-                        ui.printList(sb.toString());
                         break;
                     }
                     default:
