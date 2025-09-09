@@ -21,11 +21,28 @@ public class Parser {
             this.type = type; this.description = description; this.by = by; this.from = from; this.to = to; this.index = index; this.date = date;
         }
 
+        /**
+         * Creates a ParsedCommand with only the type populated.
+         *
+         * @param type command kind
+         * @return a minimal ParsedCommand
+         */
         public static ParsedCommand ofSimple(CommandType type) {
             return new ParsedCommand(type, null, null, null, null, null, null);
         }
     }
 
+    /**
+     * Parses a raw user input line into a structured command.
+     *
+     * Supported commands: bye, list, mark N, unmark N, todo DESC,
+     * deadline DESC /by WHEN, event DESC /from WHEN /to WHEN,
+     * delete N, find /on yyyy-MM-dd.
+     *
+     * @param input raw user input
+     * @return structured command
+     * @throws RatException if the input is invalid or incomplete
+     */
     public static ParsedCommand parse(String input) throws RatException {
         if (input.equalsIgnoreCase("bye")) {
             return ParsedCommand.ofSimple(CommandType.BYE);
@@ -64,11 +81,18 @@ public class Parser {
             int index = Integer.parseInt(parts[1]) - 1;
             return new ParsedCommand(CommandType.DELETE, null, null, null, null, index, null);
         } else if (input.startsWith("find")) {
-            String[] parts = input.substring(4).split("/on", 2);
-            if (parts.length < 2) throw new RatException("Please provide a date to search for. Usage: find /on yyyy-MM-dd");
-            String dateStr = parts[1].trim();
-            LocalDate searchDate = LocalDate.parse(dateStr);
-            return new ParsedCommand(CommandType.FIND, null, null, null, null, null, searchDate);
+            String args = input.substring(4).trim();
+            // Support both: keyword search (find <keyword>) and date search (find /on yyyy-MM-dd)
+            if (args.startsWith("/on") || args.contains("/on")) {
+                String[] parts = args.split("/on", 2);
+                if (parts.length < 2) throw new RatException("Please provide a date to search for. Usage: find /on yyyy-MM-dd");
+                String dateStr = parts[1].trim();
+                LocalDate searchDate = LocalDate.parse(dateStr);
+                return new ParsedCommand(CommandType.FIND, null, null, null, null, null, searchDate);
+            } else {
+                if (args.isEmpty()) throw new RatException("Please provide a keyword to search for. Usage: find keyword");
+                return new ParsedCommand(CommandType.FIND, args, null, null, null, null, null);
+            }
         }
 
         throw new RatException("I don't understand that command.");
