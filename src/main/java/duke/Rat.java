@@ -15,6 +15,12 @@ public class Rat {
     private final TaskList tasks;
     private final Ui ui;
 
+    /**
+     * Creates a Rat application instance bound to the given storage path.
+     * Loads existing tasks if available, otherwise starts with an empty list.
+     *
+     * @param filePath path to the storage file
+     */
     public Rat(String filePath) {
         this.ui = new Ui();
         this.storage = new Storage(filePath);
@@ -28,6 +34,9 @@ public class Rat {
         this.tasks = loaded;
     }
 
+    /**
+     * Runs the main command loop for the CLI until the user exits.
+     */
     public void run() {
         ui.showWelcome();
         boolean isExit = false;
@@ -118,6 +127,9 @@ public class Rat {
         ui.printBye();
     }
 
+    /**
+     * Persists the current task list to storage, logging any IO errors.
+     */
     private void saveTasks() {
         try {
             storage.save(tasks.asList());
@@ -126,6 +138,11 @@ public class Rat {
         }
     }
 
+    /**
+     * Application entry point.
+     *
+     * @param args command-line arguments (unused)
+     */
     public static void main(String[] args) {
         new Rat(FILE_PATH).run();
     }

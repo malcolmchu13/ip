@@ -10,11 +10,23 @@ public class Deadline extends Task {
 
     protected LocalDateTime by;
 
+    /**
+     * Creates a deadline with a concrete timestamp.
+     *
+     * @param description task description
+     * @param by due date/time
+     */
     public Deadline(String description, LocalDateTime by) {
         super(description);
         this.by = by;
     }
 
+    /**
+     * Creates a deadline parsing the provided date/time text.
+     *
+     * @param description task description
+     * @param by date/time in supported formats
+     */
     public Deadline(String description, String by) {
         super(description);
         this.by = parseDateTime(by);
@@ -60,6 +72,11 @@ public class Deadline extends Task {
     }
 
     @Override
+    /**
+     * Returns a display string including the due date/time.
+     *
+     * @return formatted string for lists
+     */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[D]").append(super.toString()).append(" (by: ").append(formatDateTime(by)).append(")");
@@ -77,6 +94,11 @@ public class Deadline extends Task {
     }
 
     @Override
+    /**
+     * Encodes this deadline for storage.
+     *
+     * @return storage line: "D | doneFlag | description | ISO_LOCAL_DATE_TIME"
+     */
     public String toFileString() {
         return "D | " + (isDone ? "1" : "0") + " | " + description + " | " + by.toString();
     }

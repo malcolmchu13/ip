@@ -6,14 +6,28 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Handles persistence of tasks to and from a plain text file.
+ */
 public class Storage {
 
     private final String filePath;
 
+    /**
+     * Creates a new storage helper bound to the given file path.
+     *
+     * @param filePath path to the tasks data file
+     */
     public Storage(String filePath) {
         this.filePath = filePath;
     }
 
+    /**
+     * Loads tasks from the backing file, creating the file if it does not exist.
+     *
+     * @return list of tasks (possibly empty)
+     * @throws RatException if the file cannot be read or contains malformed entries
+     */
     public ArrayList<Task> load() throws RatException {
         ArrayList<Task> tasks = new ArrayList<>();
         File file = new File(filePath);
@@ -35,6 +49,12 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Saves the provided tasks to the backing file, overwriting existing content.
+     *
+     * @param tasks tasks to persist
+     * @throws IOException if writing fails
+     */
     public void save(ArrayList<Task> tasks) throws IOException {
         FileWriter writer = new FileWriter(filePath);
         for (Task task : tasks) {

@@ -8,18 +8,30 @@ public abstract class Task {
     protected String description;
     protected boolean isDone;
 
+    /**
+     * Constructs a task with the given description. New tasks start as not done.
+     *
+     * @param description human-readable task description
+     */
     public Task(String description) {
         this.description = description;
         this.isDone = false;
     }
 
+    /**
+     * Returns the status icon used in list displays.
+     *
+     * @return "X" if done, otherwise a single space
+     */
     public String getStatusIcon() {
         return (isDone ? "X" : " "); // mark done task with X
     }
+    /** Marks this task as done. */
     public void markAsDone() {
         this.isDone = true;
     }
 
+    /** Marks this task as not done. */
     public void markAsNotDone() {
         this.isDone = false;
     }
@@ -31,8 +43,20 @@ public abstract class Task {
         return sb.toString();
     }
 
+    /**
+     * Serializes this task to a single-line storage format.
+     *
+     * @return encoded string for storage
+     */
     public abstract String toFileString();
 
+    /**
+     * Deserializes a task from the storage format produced by {@link #toFileString()}.
+     *
+     * @param fileString encoded task line
+     * @return reconstructed task instance
+     * @throws RatException if the encoded line is malformed or type is unknown
+     */
     public static Task fromString(String fileString) throws RatException {
         String[] parts = fileString.split(" \\| ");
         String type = parts[0];

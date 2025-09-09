@@ -10,38 +10,69 @@ import java.util.ArrayList;
 public class TaskList {
     private final ArrayList<Task> tasks;
 
+    /** Creates an empty task list. */
     public TaskList() {
         this.tasks = new ArrayList<>();
     }
 
+    /**
+     * Creates a task list seeded with the provided tasks.
+     *
+     * @param tasks initial tasks (may be null for empty)
+     */
     public TaskList(ArrayList<Task> tasks) {
         this.tasks = tasks != null ? tasks : new ArrayList<>();
     }
 
+    /** @return number of tasks in the list */
     public int size() {
         return tasks.size();
     }
 
+    /** @return true if no tasks exist */
     public boolean isEmpty() {
         return tasks.isEmpty();
     }
 
+    /**
+     * Gets the task at a 0-based index.
+     *
+     * @param index position in the list
+     * @return task instance
+     */
     public Task get(int index) {
         return tasks.get(index);
     }
 
+    /** Adds a task to the end of the list. */
     public void add(Task task) {
         tasks.add(task);
     }
 
+    /**
+     * Removes and returns the task at the given index.
+     *
+     * @param index 0-based index
+     * @return removed task
+     */
     public Task remove(int index) {
         return tasks.remove(index);
     }
 
+    /**
+     * Provides direct access to the underlying list for serialization.
+     *
+     * @return backing list reference
+     */
     public ArrayList<Task> asList() {
         return tasks;
     }
 
+    /**
+     * Renders the list to a user-friendly multi-line string.
+     *
+     * @return formatted list body
+     */
     public String toDisplayString() {
         StringBuilder listMessage = new StringBuilder();
         if (tasks.isEmpty()) {

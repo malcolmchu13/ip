@@ -10,12 +10,26 @@ public class Event extends Task{
     protected LocalDateTime from;
     protected LocalDateTime to;
 
+    /**
+     * Creates an event with concrete start and end timestamps.
+     *
+     * @param description task description
+     * @param from start date/time
+     * @param to end date/time
+     */
     public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
         this.from = from;
         this.to = to;
     }
 
+    /**
+     * Creates an event parsing the provided start/end text values.
+     *
+     * @param description task description
+     * @param from start date/time text in supported formats
+     * @param to end date/time text in supported formats
+     */
     public Event(String description, String from, String to) {
         super(description);
         this.from = parseDateTime(from);
@@ -62,6 +76,11 @@ public class Event extends Task{
     }
 
     @Override
+    /**
+     * Returns a display string including the time range.
+     *
+     * @return formatted string for lists
+     */
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[E]").append(super.toString()).append(" (from: ").append(formatDateTime(from)).append(" to: ").append(formatDateTime(to)).append(")");
@@ -79,6 +98,11 @@ public class Event extends Task{
     }
 
     @Override
+    /**
+     * Encodes this event for storage.
+     *
+     * @return storage line: "E | doneFlag | description | ISO_FROM | ISO_TO"
+     */
     public String toFileString() {
         return "E | " + (isDone ? "1" : "0") + " | " + description + " | " + from.toString() + " | " + to.toString();
     }
