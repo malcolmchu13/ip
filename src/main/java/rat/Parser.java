@@ -2,96 +2,90 @@ package rat;
 
 import java.time.LocalDate;
 
+import rat.command.ByeCommand;
+import rat.command.Command;
+import rat.command.DeadlineCommand;
+import rat.command.DeleteCommand;
+import rat.command.EventCommand;
+import rat.command.FindCommand;
+import rat.command.ListCommand;
+import rat.command.MarkCommand;
+import rat.command.TodoCommand;
+import rat.command.UnmarkCommand;
+
 /**
- * Parses user input into structured commands.
+ * Parses user input into executable commands.
  */
 public class Parser {
-    public enum CommandType { BYE, LIST, MARK, UNMARK, TODO, DEADLINE, EVENT, DELETE, FIND }
-
-    public static class ParsedCommand {
-        public final CommandType type;
-        public final String description;
-        public final String by;
-        public final String from;
-        public final String to;
-        public final Integer index; // 0-based index
-        public final LocalDate date; // for find
-
-        private ParsedCommand(CommandType type, String description, String by, String from, String to, Integer index, LocalDate date) {
-            this.type = type; this.description = description; this.by = by; this.from = from; this.to = to; this.index = index; this.date = date;
-        }
-
-        /**
-         * Creates a ParsedCommand with only the type populated.
-         *
-         * @param type command kind
-         * @return a minimal ParsedCommand
-         */
-        public static ParsedCommand ofSimple(CommandType type) {
-            return new ParsedCommand(type, null, null, null, null, null, null);
-        }
-    }
 
     /**
-     * Parses a raw user input line into a structured command.
+     * Parses a raw user input line into a Command instance.
      *
      * Supported commands: bye, list, mark N, unmark N, todo DESC,
      * deadline DESC /by WHEN, event DESC /from WHEN /to WHEN,
-     * delete N, find /on yyyy-MM-dd.
-     *
-     * @param input raw user input
-     * @return structured command
-     * @throws RatException if the input is invalid or incomplete
+     * delete N, find /on yyyy-MM-dd or find KEYWORD.
      */
-    public static ParsedCommand parse(String input) throws RatException {
-        if (input.equalsIgnoreCase("bye")) {
-            return ParsedCommand.ofSimple(CommandType.BYE);
-        } else if (input.equalsIgnoreCase("list")) {
-            return ParsedCommand.ofSimple(CommandType.LIST);
-        } else if (input.startsWith("mark")) {
-            String[] parts = input.split(" ");
+    public static Command parse(String input) throws RatException {
+        String trimmed = input.trim();
+        if (trimmed.equalsIgnoreCase("bye")) {
+            return new ByeCommand();
+        } else if (trimmed.equalsIgnoreCase("list")) {
+            return new ListCommand();
+        } else if (trimmed.startsWith("mark")) {
+            String[] parts = trimmed.split(" ");
             if (parts.length < 2) throw new RatException("Please provide a task number to mark.");
             int index = Integer.parseInt(parts[1]) - 1;
-            return new ParsedCommand(CommandType.MARK, null, null, null, null, index, null);
-        } else if (input.startsWith("unmark")) {
-            String[] parts = input.split(" ");
+            return new MarkCommand(index);
+        } else if (trimmed.startsWith("unmark")) {
+            String[] parts = trimmed.split(" ");
             if (parts.length < 2) throw new RatException("Please provide a task number to unmark.");
             int index = Integer.parseInt(parts[1]) - 1;
-            return new ParsedCommand(CommandType.UNMARK, null, null, null, null, index, null);
-        } else if (input.startsWith("todo")) {
-            String description = input.substring(4).trim();
-            if (description.isEmpty()) throw new RatException("The description of a todo cannot be empty.");
-            return new ParsedCommand(CommandType.TODO, description, null, null, null, null, null);
-        } else if (input.startsWith("deadline")) {
-            String[] parts = input.substring(8).split("/by", 2);
+            return new UnmarkCommand(index);
+        } else if (trimmed.startsWith("todo")) {
+            String description = trimmed.substring(4).trim();
+            return new TodoCommand(description);
+        } else if (trimmed.startsWith("deadline")) {
+            String[] parts = trimmed.substring(8).split("/by", 2);
             String description = parts[0].trim();
-            if (description.isEmpty()) throw new RatException("The description of a deadline cannot be empty.");
             String by = parts.length > 1 ? parts[1].trim() : "unspecified";
-            return new ParsedCommand(CommandType.DEADLINE, description, by, null, null, null, null);
-        } else if (input.startsWith("event")) {
-            String[] parts = input.substring(5).split("/from|/to");
-            String description = parts[0].trim();
-            if (description.isEmpty()) throw new RatException("The description of an event cannot be empty.");
-            String from = (parts.length > 1) ? parts[1].trim() : "unspecified";
-            String to = (parts.length > 2) ? parts[2].trim() : "unspecified";
-            return new ParsedCommand(CommandType.EVENT, description, null, from, to, null, null);
-        } else if (input.startsWith("delete")) {
-            String[] parts = input.split(" ");
+            return new DeadlineCommand(description, by);
+        } else if (trimmed.startsWith("event")) {
+            // Split once on /from, then on /to from the remaining
+            String body = trimmed.substring(5);
+            String description;
+            String from = "unspecified";
+            String to = "unspecified";
+            if (body.contains("/from")) {
+                String[] splitFrom = body.split("/from", 2);
+                description = splitFrom[0].trim();
+                String rest = splitFrom.length > 1 ? splitFrom[1] : "";
+                if (rest.contains("/to")) {
+                    String[] splitTo = rest.split("/to", 2);
+                    from = splitTo[0].trim();
+                    to = splitTo.length > 1 ? splitTo[1].trim() : "unspecified";
+                } else {
+                    from = rest.trim();
+                }
+            } else {
+                description = body.trim();
+            }
+            return new EventCommand(description, from, to);
+        } else if (trimmed.startsWith("delete")) {
+            String[] parts = trimmed.split(" ");
             if (parts.length < 2) throw new RatException("Please provide a task number to delete.");
             int index = Integer.parseInt(parts[1]) - 1;
-            return new ParsedCommand(CommandType.DELETE, null, null, null, null, index, null);
-        } else if (input.startsWith("find")) {
-            String args = input.substring(4).trim();
-            // Support both: keyword search (find <keyword>) and date search (find /on yyyy-MM-dd)
+            return new DeleteCommand(index);
+        } else if (trimmed.startsWith("find")) {
+            String args = trimmed.substring(4).trim();
             if (args.startsWith("/on") || args.contains("/on")) {
                 String[] parts = args.split("/on", 2);
                 if (parts.length < 2) throw new RatException("Please provide a date to search for. Usage: find /on yyyy-MM-dd");
                 String dateStr = parts[1].trim();
                 LocalDate searchDate = LocalDate.parse(dateStr);
-                return new ParsedCommand(CommandType.FIND, null, null, null, null, null, searchDate);
+                return FindCommand.byDate(searchDate);
             } else {
                 if (args.isEmpty()) throw new RatException("Please provide a keyword to search for. Usage: find keyword");
-                return new ParsedCommand(CommandType.FIND, args, null, null, null, null, null);
+                return FindCommand.byKeyword(args);
             }
         }
 

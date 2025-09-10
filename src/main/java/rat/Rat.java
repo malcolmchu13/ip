@@ -1,8 +1,7 @@
 package rat;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+
 
 /**
  * The main class for the Rat task management application.
@@ -32,110 +31,18 @@ public class Rat {
         ui.showWelcome();
         boolean isExit = false;
         while (!isExit) {
-            String input = ui.readCommand();
             try {
-                Parser.ParsedCommand cmd = Parser.parse(input);
-                switch (cmd.type) {
-                case BYE:
-                    isExit = true;
-                    break;
-                case LIST:
-                    ui.printList(tasks.toDisplayString());
-                    break;
-                case MARK: {
-                    int index = cmd.index;
-                    if (index < 0 || index >= tasks.size()) {
-                        throw new RatException("That task number does not exist.");
-                    }
-                    tasks.get(index).markAsDone();
-                    saveTasks();
-                    ui.printMarked(tasks.get(index));
-                    break;
-                }
-                case UNMARK: {
-                    int index = cmd.index;
-                    if (index < 0 || index >= tasks.size()) {
-                        throw new RatException("That task number does not exist.");
-                    }
-                    tasks.get(index).markAsNotDone();
-                    saveTasks();
-                    ui.printUnmarked(tasks.get(index));
-                    break;
-                }
-                case TODO: {
-                    Task t = new ToDo(cmd.description);
-                    tasks.add(t);
-                    saveTasks();
-                    ui.printAdded(t, tasks.size());
-                    break;
-                }
-                case DEADLINE: {
-                    Task t = new Deadline(cmd.description, cmd.by);
-                    tasks.add(t);
-                    saveTasks();
-                    ui.printAdded(t, tasks.size());
-                    break;
-                }
-                case EVENT: {
-                    Task t = new Event(cmd.description, cmd.from, cmd.to);
-                    tasks.add(t);
-                    saveTasks();
-                    ui.printAdded(t, tasks.size());
-                    break;
-                }
-                case DELETE: {
-                    int index = cmd.index;
-                    if (index < 0 || index >= tasks.size()) {
-                        throw new RatException("That task number does not exist.");
-                    }
-                    Task removed = tasks.remove(index);
-                    saveTasks();
-                    ui.printDeleted(removed, tasks.size());
-                    break;
-                }
-                case FIND: {
-                    if (cmd.date != null) {
-                        LocalDate searchDate = cmd.date;
-                        java.util.ArrayList<Task> found = tasks.findTasksByDate(searchDate);
-                        StringBuilder sb = new StringBuilder();
-                        if (found.isEmpty()) {
-                            sb.append(" No tasks found on ")
-                              .append(searchDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")))
-                              .append("!\n");
-                        } else {
-                            sb.append(" Here are the tasks on ")
-                              .append(searchDate.format(DateTimeFormatter.ofPattern("MMM dd yyyy")))
-                              .append(":\n");
-                            for (int i = 0; i < found.size(); i++) {
-                                sb.append(" ").append(i + 1).append(". ").append(found.get(i)).append("\n");
-                            }
-                        }
-                        ui.printList(sb.toString());
-                    } else if (cmd.description != null) {
-                        String keyword = cmd.description;
-                        java.util.ArrayList<Task> found = tasks.findTasksByKeyword(keyword);
-                        StringBuilder sb = new StringBuilder();
-                        if (found.isEmpty()) {
-                            sb.append(" No matching tasks found.\n");
-                        } else {
-                            sb.append(" Here are the matching tasks in your list:\n");
-                            for (int i = 0; i < found.size(); i++) {
-                                sb.append(" ").append(i + 1).append(". ").append(found.get(i)).append("\n");
-                            }
-                        }
-                        ui.printList(sb.toString());
-                    } else {
-                        throw new RatException("Please provide a keyword or a date to search.");
-                    }
-                    break;
-                }
-                default:
-                    throw new RatException("I don't understand that command.");
-                }
+                String fullCommand = ui.readCommand();
+                rat.command.Command c = Parser.parse(fullCommand);
+                String response = c.execute(tasks, ui, storage);
+                ui.printList(response);
+                isExit = c.isExit();
             } catch (RatException e) {
                 ui.showError(e.getMessage());
             } catch (NumberFormatException e) {
                 ui.showError("Invalid number format. Please enter a valid task number.");
+            } finally {
+                ui.showLine();
             }
         }
         ui.printBye();
@@ -152,4 +59,18 @@ public class Rat {
     public static void main(String[] args) {
         new Rat(FILE_PATH).run();
     }
+/**
+     * Generates a response for the user's chat message.
+     */
+    public String getResponse(String input) {
+        try {
+            rat.command.Command c = Parser.parse(input.trim());
+            return c.execute(tasks, ui, storage);
+        } catch (RatException e) {
+            return " Oops! " + e.getMessage();
+        } catch (NumberFormatException e) {
+            return " Oops! Invalid number format. Please enter a valid task number.";
+        }
+    }
+    
 }
