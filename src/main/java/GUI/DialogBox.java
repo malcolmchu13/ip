@@ -25,6 +25,8 @@ public class DialogBox extends HBox {
     private ImageView displayPicture;
 
     private DialogBox(String text, Image img) {
+        assert text != null : "DialogBox requires non-null text";
+        assert img != null : "DialogBox requires a non-null display image";
         try {
             java.net.URL fxmlUrl = MainWindow.class.getResource("/view/DialogBox.fxml");
             if (fxmlUrl == null) {

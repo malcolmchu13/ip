@@ -19,6 +19,7 @@ public class Storage {
      * @param filePath path to the tasks data file
      */
     public Storage(String filePath) {
+        assert filePath != null : "Storage requires a non-null file path";
         this.filePath = filePath;
     }
 
@@ -33,7 +34,10 @@ public class Storage {
         File file = new File(filePath);
         try {
             if (!file.exists()) {
-                file.getParentFile().mkdirs();
+                File parent = file.getParentFile();
+                if (parent != null) {
+                    parent.mkdirs();
+                }
                 file.createNewFile();
             }
 
@@ -56,8 +60,10 @@ public class Storage {
      * @throws IOException if writing fails
      */
     public void save(ArrayList<Task> tasks) throws IOException {
+        assert tasks != null : "Storage.save expects a non-null list";
         FileWriter writer = new FileWriter(filePath);
         for (Task task : tasks) {
+            assert task != null : "Storage.save does not persist null tasks";
             writer.write(task.toFileString() + "\n");
         }
         writer.close();

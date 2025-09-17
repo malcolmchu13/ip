@@ -41,11 +41,13 @@ public class TaskList {
      * @return task instance
      */
     public Task get(int index) {
+        assert index >= 0 && index < tasks.size() : "TaskList.get index out of bounds";
         return tasks.get(index);
     }
 
     /** Adds a task to the end of the list. */
     public void add(Task task) {
+        assert task != null : "TaskList.add expects a non-null task";
         tasks.add(task);
     }
 
@@ -56,6 +58,7 @@ public class TaskList {
      * @return removed task
      */
     public Task remove(int index) {
+        assert index >= 0 && index < tasks.size() : "TaskList.remove index out of bounds";
         return tasks.remove(index);
     }
 
@@ -108,6 +111,7 @@ public class TaskList {
      * Finds all tasks (deadlines and events) that occur on the specified date.
      */
     public ArrayList<Task> findTasksByDate(LocalDate searchDate) {
+        assert searchDate != null : "TaskList.findTasksByDate expects a search date";
         ArrayList<Task> foundTasks = new ArrayList<>();
         for (Task task : tasks) {
             if (task instanceof Deadline) {
@@ -116,6 +120,7 @@ public class TaskList {
                     java.lang.reflect.Field byField = Deadline.class.getDeclaredField("by");
                     byField.setAccessible(true);
                     LocalDateTime deadlineDateTime = (LocalDateTime) byField.get(deadline);
+                    assert deadlineDateTime != null : "Deadline should have a due datetime";
                     if (deadlineDateTime.toLocalDate().equals(searchDate)) {
                         foundTasks.add(task);
                     }
@@ -129,6 +134,8 @@ public class TaskList {
                     toField.setAccessible(true);
                     LocalDateTime fromDateTime = (LocalDateTime) fromField.get(event);
                     LocalDateTime toDateTime = (LocalDateTime) toField.get(event);
+                    assert fromDateTime != null : "Event should have a start datetime";
+                    assert toDateTime != null : "Event should have an end datetime";
                     LocalDate fromDate = fromDateTime.toLocalDate();
                     LocalDate toDate = toDateTime.toLocalDate();
                     if ((searchDate.isEqual(fromDate) || searchDate.isEqual(toDate) ||

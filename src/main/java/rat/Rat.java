@@ -33,7 +33,9 @@ public class Rat {
         while (!isExit) {
             try {
                 String fullCommand = ui.readCommand();
+                assert fullCommand != null : "Ui.readCommand should not return null";
                 rat.command.Command c = Parser.parse(fullCommand);
+                assert c != null : "Parser must return a command instance";
                 String response = c.execute(tasks, ui, storage);
                 ui.printList(response);
                 isExit = c.isExit();
@@ -64,7 +66,9 @@ public class Rat {
      */
     public String getResponse(String input) {
         try {
+            assert input != null : "Rat.getResponse expects non-null input";
             rat.command.Command c = Parser.parse(input.trim());
+            assert c != null : "Parser must return a command instance";
             return c.execute(tasks, ui, storage);
         } catch (RatException e) {
             return " Oops! " + e.getMessage();

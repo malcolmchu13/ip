@@ -19,6 +19,8 @@ public class Event extends Task{
      */
     public Event(String description, LocalDateTime from, LocalDateTime to) {
         super(description);
+        assert from != null : "Event requires a non-null start time";
+        assert to != null : "Event requires a non-null end time";
         this.from = from;
         this.to = to;
     }
@@ -32,6 +34,8 @@ public class Event extends Task{
      */
     public Event(String description, String from, String to) {
         super(description);
+        assert from != null : "Event string form requires non-null start";
+        assert to != null : "Event string form requires non-null end";
         this.from = parseDateTime(from);
         this.to = parseDateTime(to);
     }
@@ -43,6 +47,7 @@ public class Event extends Task{
      * @return LocalDateTime object
      */
     private LocalDateTime parseDateTime(String dateTimeStr) {
+        assert dateTimeStr != null : "Event parser expects non-null date string";
         try {
             // Try ISO format first (from file loading)
             if (dateTimeStr.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}")) {

@@ -18,6 +18,7 @@ public class Deadline extends Task {
      */
     public Deadline(String description, LocalDateTime by) {
         super(description);
+        assert by != null : "Deadline requires a non-null due date";
         this.by = by;
     }
 
@@ -29,6 +30,7 @@ public class Deadline extends Task {
      */
     public Deadline(String description, String by) {
         super(description);
+        assert by != null : "Deadline string form requires non-null input";
         this.by = parseDateTime(by);
     }
 
@@ -39,6 +41,7 @@ public class Deadline extends Task {
      * @return LocalDateTime object
      */
     private LocalDateTime parseDateTime(String dateTimeStr) {
+        assert dateTimeStr != null : "Deadline parser expects non-null date string";
         try {
             // Try ISO format first (from file loading)
             if (dateTimeStr.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}")) {

@@ -29,6 +29,9 @@ public class FindCommand extends Command {
 
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws RatException {
+        assert tasks != null : "FindCommand expects a TaskList";
+        assert ui != null : "FindCommand expects a Ui";
+        assert storage != null : "FindCommand expects storage";
         if (date != null) {
             ArrayList<Task> found = tasks.findTasksByDate(date);
             StringBuilder sb = new StringBuilder();
@@ -61,4 +64,3 @@ public class FindCommand extends Command {
         throw new RatException("Please provide a keyword or a date to search.");
     }
 }
-

@@ -14,6 +14,7 @@ public abstract class Task {
      * @param description human-readable task description
      */
     public Task(String description) {
+        assert description != null : "Task description should not be null";
         this.description = description;
         this.isDone = false;
     }
@@ -61,7 +62,9 @@ public abstract class Task {
      * @throws RatException if the encoded line is malformed or type is unknown
      */
     public static Task fromString(String fileString) throws RatException {
+        assert fileString != null : "Persisted task string should not be null";
         String[] parts = fileString.split(" \\| ");
+        assert parts.length >= 3 : "Persisted task string must include type, status, and description";
         String type = parts[0];
         boolean isDone = parts[1].equals("1");
         String description = parts[2];

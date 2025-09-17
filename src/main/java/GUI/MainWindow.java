@@ -56,6 +56,7 @@ public class MainWindow extends AnchorPane {
 
     /** Injects the Duke instance */
     public void setRat(Rat d) {
+        assert d != null : "MainWindow requires a non-null Rat instance";
         rat = d;
     }
 
@@ -65,7 +66,9 @@ public class MainWindow extends AnchorPane {
      */
     @FXML
     private void handleUserInput() {
+        assert rat != null : "Rat instance must be set before handling input";
         String input = userInput.getText();
+        assert input != null : "User input text should not be null";
         String response = rat.getResponse(input);
         dialogContainer.getChildren().addAll(
                 DialogBox.getUserDialog(input, userImage),

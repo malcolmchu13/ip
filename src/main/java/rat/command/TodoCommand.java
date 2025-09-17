@@ -14,6 +14,9 @@ public class TodoCommand extends Command {
 
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws RatException {
+        assert tasks != null : "TodoCommand expects a TaskList";
+        assert ui != null : "TodoCommand expects a Ui";
+        assert storage != null : "TodoCommand expects storage";
         if (description == null || description.isBlank()) {
             throw new RatException("The description of a todo cannot be empty.");
         }
@@ -27,4 +30,3 @@ public class TodoCommand extends Command {
         return " Got it. I've added this task:\n   " + t + "\n Now you have " + tasks.size() + " tasks in the list.";
     }
 }
-

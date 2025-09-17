@@ -13,6 +13,9 @@ public class DeleteCommand extends Command {
 
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws RatException {
+        assert tasks != null : "DeleteCommand expects a TaskList";
+        assert ui != null : "DeleteCommand expects a Ui";
+        assert storage != null : "DeleteCommand expects storage";
         if (index < 0 || index >= tasks.size()) {
             throw new RatException("That task number does not exist.");
         }
@@ -25,4 +28,3 @@ public class DeleteCommand extends Command {
         return " Noted. I've removed this task:\n   " + removed + "\n Now you have " + tasks.size() + " tasks in the list.";
     }
 }
-

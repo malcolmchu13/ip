@@ -13,6 +13,9 @@ public class MarkCommand extends Command {
 
     @Override
     public String execute(TaskList tasks, Ui ui, Storage storage) throws RatException {
+        assert tasks != null : "MarkCommand expects a TaskList";
+        assert ui != null : "MarkCommand expects a Ui";
+        assert storage != null : "MarkCommand expects storage";
         if (index < 0 || index >= tasks.size()) {
             throw new RatException("That task number does not exist.");
         }
@@ -26,4 +29,3 @@ public class MarkCommand extends Command {
         return " Nice! I've marked this task as done:\n   " + t;
     }
 }
-
