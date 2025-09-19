@@ -41,6 +41,32 @@ public class Event extends Task{
     }
 
     /**
+     * Reschedules this event using textual date/time values.
+     *
+     * @param newFrom textual new start time
+     * @param newTo textual new end time
+     */
+    public void reschedule(String newFrom, String newTo) {
+        assert newFrom != null : "Event reschedule requires non-null start";
+        assert newTo != null : "Event reschedule requires non-null end";
+        this.from = parseDateTime(newFrom);
+        this.to = parseDateTime(newTo);
+    }
+
+    /**
+     * Reschedules this event using explicit timestamps.
+     *
+     * @param newFrom new start time
+     * @param newTo new end time
+     */
+    public void reschedule(LocalDateTime newFrom, LocalDateTime newTo) {
+        assert newFrom != null : "Event reschedule requires a start timestamp";
+        assert newTo != null : "Event reschedule requires an end timestamp";
+        this.from = newFrom;
+        this.to = newTo;
+    }
+
+    /**
      * Parses a date/time string into LocalDateTime.
      * Supports formats: yyyy-MM-dd, yyyy-MM-dd HHmm, dd/MM/yyyy HHmm, yyyy-MM-ddTHH:mm
      * @param dateTimeStr the date/time string to parse

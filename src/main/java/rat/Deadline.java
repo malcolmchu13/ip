@@ -35,6 +35,26 @@ public class Deadline extends Task {
     }
 
     /**
+     * Updates the stored due date using the same parsing rules as construction.
+     *
+     * @param newBy textual representation of the new due date/time
+     */
+    public void reschedule(String newBy) {
+        assert newBy != null : "Deadline reschedule requires non-null input";
+        this.by = parseDateTime(newBy);
+    }
+
+    /**
+     * Updates the stored due date with a concrete timestamp.
+     *
+     * @param newBy new due moment
+     */
+    public void reschedule(LocalDateTime newBy) {
+        assert newBy != null : "Deadline reschedule requires a non-null timestamp";
+        this.by = newBy;
+    }
+
+    /**
      * Parses a date/time string into LocalDateTime.
      * Supports formats: yyyy-MM-dd, yyyy-MM-dd HHmm, dd/MM/yyyy HHmm, yyyy-MM-ddTHH:mm
      * @param dateTimeStr the date/time string to parse
