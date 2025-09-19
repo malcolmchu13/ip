@@ -30,8 +30,8 @@ test {
 }
 
 application {
-    // Use fully-qualified main class in package GUI
-    mainClass.set("GUI.Launcher")
+    // Use fully-qualified main class in package gui
+    mainClass.set("gui.Launcher")
 }
 
 shadowJar {
